@@ -1,0 +1,55 @@
+{
+	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "开始签到",
+				"transparentTitle": "always"
+			}
+		},
+		{
+			"path": "pages/account/account",
+			"style": {
+				"navigationBarTitleText": "账户管理"
+			}
+		},
+		{
+			"path": "pages/about/about",
+			"style": {
+				"navigationBarTitleText": "关于",
+				"navigationBarBackgroundColor": "#4a90e2",
+				"navigationBarTextStyle": "white"
+			}
+		}
+    ],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "优学院位置签到",
+		"navigationBarBackgroundColor": "#F8F8F8"
+	},
+	"uniIdRouter": {},
+	"tabBar": {
+		"backgroundColor": "#FFFFFF",
+		"borderStyle": "white",
+		"list": [
+			{
+				"text": "签到",
+				"pagePath": "pages/index/index",
+				"iconPath": "static/bar/local_0.png",
+				"selectedIconPath": "static/bar/local_1.png"
+			},
+			{
+				"text": "账户",
+				"pagePath": "pages/account/account",
+				"iconPath": "static/bar/user_0.png",
+				"selectedIconPath": "static/bar/user_1.png"
+			},
+			{
+				"text": "关于",
+				"pagePath": "pages/about/about",
+				"iconPath": "static/bar/application_0.png",
+				"selectedIconPath": "static/bar/application_1.png"
+			}
+		]
+	}
+}
