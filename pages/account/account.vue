@@ -27,7 +27,7 @@
 								<view class="userList_index">
 									<view>
 										<view>
-											<input type="text" placeholder="请输入新的密码" :value="item.passwd" :id="'changePasswd'+index" confirm-type="done"/>
+											<input type="text" placeholder="请输入新的密码" :value="item.passwd" :ref="'changePasswd'+index" confirm-type="done"/>
 										</view>
 										<button type="default" @click="changeUserInfo(index)">修改</button>
 									</view>
@@ -89,10 +89,12 @@
 				}
 			},
 			changeUserInfo(index){
-				let loc = 'changePasswd'+index;
-				let nowPasswd = this.$refs.loc;
-				console.log("nowPasswd:");
-				console.log(nowPasswd);
+				//this.$refs亲测无效
+				this.$nextTick(() => {
+					let nowPasswd = this.$refs['changePasswd0'].value;
+					console.log("nowPasswd:");
+					console.log(nowPasswd);
+				});
 			},
 			choUser(user){
 				getApp().globalData.nowUser = user;
