@@ -27,9 +27,9 @@
 								<view class="userList_index">
 									<view>
 										<view>
-											<input type="text" placeholder="请输入新的密码" :value="item.passwd" confirm-type="done"/>
+											<input type="text" placeholder="请输入新的密码" :value="item.passwd" :id="'changePasswd'+index" confirm-type="done"/>
 										</view>
-										<button type="default" @click="changeUserInfo">修改</button>
+										<button type="default" @click="changeUserInfo(index)">修改</button>
 									</view>
 									<view>
 										<button type="primary" @click="choUser(item)">选中</button>
@@ -46,7 +46,6 @@
 </template>
 
 <script>
-	import myjs from '../../static/js/account.js'
 	export default {
 		globalData: {
 			nowUser: ""
@@ -70,7 +69,7 @@
 						res.keys.forEach((ph, k) => {
 							let pa = uni.getStorageSync(ph);
 							that.userList.push({"phone": ph, "passwd": pa});
-							myjs.loginBody(ph,pa);
+							// myjs.loginBody(ph,pa);
 						});
 					},
 					fail() {
@@ -89,7 +88,11 @@
 					this.passwd = "";
 				}
 			},
-			changeUserInfo(){
+			changeUserInfo(index){
+				let loc = 'changePasswd'+index;
+				let nowPasswd = this.$refs.loc;
+				console.log("nowPasswd:");
+				console.log(nowPasswd);
 			},
 			choUser(user){
 				getApp().globalData.nowUser = user;
