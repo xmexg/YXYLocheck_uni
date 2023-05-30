@@ -1,5 +1,11 @@
 import './md5.js';
-import '../../.vite/deps/crypto-js.js';
+import CryptoJS from "../../node_modules/.vite/deps/crypto-js.js";
+import Pkcs7 from '../../node_modules/.vite/deps/crypto-js_pad-pkcs7.js';
+
+CryptoJS.pad.Pkcs7 = Pkcs7;
+
+
+// export default crypto
 var LOGIN_BODY_SALT = "(**Ulearning__Login##by$$project&&team@@)";//优学院的盐,只是参考,不应该参与计算,浪费性能
 var LOGIN_BODY_SALT_MD5 = "416b0426293a1b2e8f129f23e9ac1eef";//盐的md5,固定值
 var AES_KEY = "ulearning2021331";// 优学院AES的加密密钥
@@ -56,11 +62,13 @@ function loginBody(phone, passwd){
 	 * AES加密
 	 * 根据 https://github.com/xmexg/YXYLocheck/blob/main/src/yxyLoginEncrypt/StringUtil.java#L53
 	 */
-	const cipher = crypto.createCipher('aes256', AES_KEY);
-	let encrypted = cipher.update(jsonStr, 'utf8', 'hex');
-	encrypted += cipher.final('hex');
-	let base64str = base64.encode(encrypted);
-	let y = getCString(base64str);
+	// const cipher = CryptoJS.createCipher('aes256', AES_KEY);
+	// let encrypted = cipher.update(jsonStr, 'utf8', 'hex');
+	// encrypted += cipher.final('hex');
+	// let base64str = base64.encode(encrypted);
+	// let y = getCString(base64str);
+	
+	let y = getCStr(jsonStr);
 	console.log("y:"+y);
 }
 
@@ -76,10 +84,30 @@ function safeMd5(input){
 }
 
 /**
- * 优学院在y值中插入了随机字符
- * 参考 https://github.com/xmexg/YXYLocheck/blob/main/src/yxyLoginEncrypt/StringUtil.java#L69
+ * 下面3个函数完全还原优学院的y值加密 
+ * https://github.com/xmexg/YXYLocheck/blob/main/src/yxyLoginEncrypt/StringUtil.java
  */
-function getCString(base64str){
+function getCStr(str) {// public static String getCStr(String str)
+  try {
+    const encryptedBytes = encrypt(str, AES_KEY);
+    const encryptedString = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(encryptedBytes));
+    return getCString(encryptedString);
+  } catch (e) {
+    console.error(e);
+    return "";
+  }
+}
+function encrypt(str, str2) {// public static byte[] encrypt(String str, String str2)
+  const key = CryptoJS.enc.Utf8.parse(str2);
+  const encrypted = CryptoJS.AES.encrypt(str, key, {
+    mode: CryptoJS.mode.ECB,
+    padding: CryptoJS.pad.Pkcs7
+  });
+  return encrypted;
+}
+// 优学院在y值中插入了随机字符
+// 参考 https://github.com/xmexg/YXYLocheck/blob/main/src/yxyLoginEncrypt/StringUtil.java#L69 
+function getCString(str){// private static String getCString(String str)
 	let sb = "";
 	for (let i = 0; i < str.length; i++) {
 	  if (sb.length < 10) {
