@@ -24,7 +24,13 @@ public class DemoAES{
 		SecretKeySpec secretKeySpec = new SecretKeySpec(str2.getBytes(), "AES");
 		Cipher cipher = Cipher.getInstance(CIPHER);
 		cipher.init(1, secretKeySpec);
-		return cipher.doFinal(str.getBytes("UTF-8"));
+		byte[] encrypted = cipher.doFinal(str.getBytes("UTF-8"));
+		StringBuilder sb = new StringBuilder();
+		for(byte b : encrypted) {
+			sb.append(String.format("%02x ", b));
+		}
+		System.out.println("evely Block Data:\t"+sb);
+		return encrypted;
 	}
     
 	private static String getCString(String str) {
@@ -33,7 +39,7 @@ public class DemoAES{
 			if (sb.length() < 10) {
 				sb.append((char) (((int) (Math.random() * 26.0d)) + 97));
 			}
-		sb.append(str.charAt(i));
+			sb.append(str.charAt(i));
 		}
 		return sb.toString();
 	}

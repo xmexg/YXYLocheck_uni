@@ -68,7 +68,8 @@ function loginBody(phone, passwd){
 	// let base64str = base64.encode(encrypted);
 	// let y = getCString(base64str);
 	
-	let y = getCStr(jsonStr);
+	// let y = getCStr(jsonStr);
+	let y = getCStr("ABC");
 	console.log("y:"+y);
 }
 
@@ -88,22 +89,29 @@ function safeMd5(input){
  * https://github.com/xmexg/YXYLocheck/blob/main/src/yxyLoginEncrypt/StringUtil.java
  */
 function getCStr(str) {// public static String getCStr(String str)
-  try {
-    const encryptedBytes = encrypt(str, AES_KEY);
-    const encryptedString = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(encryptedBytes));
-    return getCString(encryptedString);
-  } catch (e) {
-    console.error(e);
-    return "";
-  }
+	try {
+		const encryptedBytes = encrypt(str, AES_KEY);
+		const encryptedString = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(encryptedBytes));
+		console.log("原始的base64编码:");
+		console.log(encryptedString);
+		return getCString(encryptedString);
+	} catch (e) {
+		console.error(e);
+		return "";
+	}
 }
 function encrypt(str, str2) {// public static byte[] encrypt(String str, String str2)
-  const key = CryptoJS.enc.Utf8.parse(str2);
-  const encrypted = CryptoJS.AES.encrypt(str, key, {
-    mode: CryptoJS.mode.ECB,
-    padding: CryptoJS.pad.Pkcs7
-  });
-  return encrypted;
+	const key = CryptoJS.enc.Utf8.parse(str2);
+	const encrypted = CryptoJS.AES.encrypt(str, key, {
+		mode: CryptoJS.mode.ECB,
+		padding: CryptoJS.pad.Pkcs7
+	});
+	// 获取加密后的字节数组
+	const ciphertext = encrypted.ciphertext;
+    // 使用CryptoJS提供的Hex对象将字节数组转为16进制字符串
+    const hex = CryptoJS.enc.Hex.stringify(ciphertext)
+	console.log("每个加密块:"+hex);
+	return encrypted;
 }
 // 优学院在y值中插入了随机字符
 // 参考 https://github.com/xmexg/YXYLocheck/blob/main/src/yxyLoginEncrypt/StringUtil.java#L69 
