@@ -4,7 +4,7 @@ import android.util.Base64;
 public class DemoAES{
 	private static final String CIPHER = "AES/ECB/PKCS5Padding";
 	public static void main(String []args) {
-		String test = "ABC";
+		String test = "4fa9699f4aefeee343d3eb46ea34e843abe1f5c753cbe70ca41c97213ad035ca";
 		String out = getCStr(test);
 		System.out.println(test+" 's code: "+out);
 			

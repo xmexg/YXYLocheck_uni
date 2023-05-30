@@ -25,10 +25,21 @@ var device="android",
 function loginBody(phone, passwd){
 	let phoneMd5 = safeMd5(phone);
 	let passwdMd5 = safeMd5(passwd);
-	let timestampMd5 = safeMd5(Date.now());
-	let ut_half = safeMd5(phoneMd5 + passwdMd5 + timestampMd5 + LOGIN_BODY_SALT_MD5);
+	let time = Date.now();
+	let timestampMd5 = safeMd5(time);
+	let ut_half = safeMd5(phoneMd5 + passwdMd5.toLowerCase() + timestampMd5 + LOGIN_BODY_SALT_MD5);
 	let timestampMd5_half = timestampMd5.slice(0, 18);
-	let ut = timestampMd5.slice(0, 18) + ut_half + timestampMd5_half.substring(18);
+	let ut = timestampMd5.slice(0, 18) + ut_half + timestampMd5.substring(18);
+	console.log("拼接时间戳："+time);
+	console.log("密码小写："+passwdMd5);
+	console.log("时间戳md5："+timestampMd5);
+	console.log("手机号md5："+phoneMd5);
+	console.log("固定值md5："+LOGIN_BODY_SALT_MD5);
+	console.log("拼接："+phoneMd5+passwdMd5+timestampMd5+LOGIN_BODY_SALT_MD5);
+	console.log("拼接后md5："+ut_half);
+	console.log("时间戳md5截取："+timestampMd5_half);
+	console.log("最终："+timestampMd5.slice(0, 18) + ut_half + timestampMd5_half.substring(18));
+	console.log("最终md5："+ut);
 	let hashMap = new Map();// 如果登录不上，有可能是java的hashMap会改变元素位置，js的Map不会改变元素位置
 	/*
 	 * js Map()
@@ -67,9 +78,8 @@ function loginBody(phone, passwd){
 	// encrypted += cipher.final('hex');
 	// let base64str = base64.encode(encrypted);
 	// let y = getCString(base64str);
-	
-	// let y = getCStr(jsonStr);
-	let y = getCStr("ABC");
+	console.log("请求数组："+jsonStr);
+	let y = getCStr(jsonStr);
 	console.log("y:"+y);
 }
 
@@ -91,7 +101,8 @@ function safeMd5(input){
 function getCStr(str) {// public static String getCStr(String str)
 	try {
 		const encryptedBytes = encrypt(str, AES_KEY);
-		const encryptedString = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(encryptedBytes));
+		// const encryptedString = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(encryptedBytes));// bug
+		const encryptedString = CryptoJS.enc.Base64.stringify(encryptedBytes);
 		console.log("原始的base64编码:");
 		console.log(encryptedString);
 		return getCString(encryptedString);
@@ -109,9 +120,11 @@ function encrypt(str, str2) {// public static byte[] encrypt(String str, String 
 	// 获取加密后的字节数组
 	const ciphertext = encrypted.ciphertext;
     // 使用CryptoJS提供的Hex对象将字节数组转为16进制字符串
-    const hex = CryptoJS.enc.Hex.stringify(ciphertext)
-	console.log("每个加密块:"+hex);
-	return encrypted;
+ //    const hex = CryptoJS.enc.Hex.stringify(ciphertext)
+	// console.log("每个加密块:"+hex);
+	// const base64string = CryptoJS.enc.Base64.stringify(ciphertext);
+	// console.log("测试base64:"+base64string);
+	return ciphertext;
 }
 // 优学院在y值中插入了随机字符
 // 参考 https://github.com/xmexg/YXYLocheck/blob/main/src/yxyLoginEncrypt/StringUtil.java#L69 
