@@ -2,13 +2,13 @@ import './md5.js';
 import CryptoJS from "../../node_modules/.vite/deps/crypto-js.js";
 import Pkcs7 from '../../node_modules/.vite/deps/crypto-js_pad-pkcs7.js';
 
-CryptoJS.pad.Pkcs7 = Pkcs7;
-
 
 // export default crypto
 var LOGIN_BODY_SALT = "(**Ulearning__Login##by$$project&&team@@)";//优学院的盐,只是参考,不应该参与计算,浪费性能
 var LOGIN_BODY_SALT_MD5 = "416b0426293a1b2e8f129f23e9ac1eef";//盐的md5,固定值
 var AES_KEY = "ulearning2021331";// 优学院AES的加密密钥
+
+CryptoJS.pad.Pkcs7 = Pkcs7;
 
 // 来自https://github.com/xmexg/YXYLocheck/blob/main/src/yxyLoginEncrypt/Main.java
 var device="android",
@@ -20,6 +20,27 @@ var device="android",
 			Uversion="2",
 			Platform="android";
 
+var NetPrefix="https://courseapi.ulearning.cn",
+			URL_LoginUrl_POST=NetPrefix+"/login/v2",// 用户登录
+			URL_GetCoursesList_GET=NetPrefix+"/courses/students",// 用户所有课程
+			URL_GetCourseHomeActivity_GET=NetPrefix+"/appHomeActivity/v3",// 用户某个课程的首页活动(/课程id)
+			URL_GetCourseAttendance_GET=NetPrefix+"/newAttendance/getAttendanceForStu",// 某课程中的所有活动(/课程的relationId/用户id)
+			URL_LocSign_POST=NetPrefix+"/newAttendance/signByStu";//完成定位签到
+			
+var HEAD={
+	"Accept-Language": "zh-cn",
+	"User-Agent": User_Agent,
+	"Uversion": Uversion,
+	"Version": Version,
+	"Versioncode": appVersion,
+	"Platform": Platform,
+	"Clientid": registrationId,
+	"Accept-Encoding": "identity",
+	"Connection": "close"
+}
+			
+			
+
 // 生成账号登录时的请求体
 // 请在需要使用md5的地方,使用safeMd5
 function loginBody(phone, passwd){
@@ -30,16 +51,6 @@ function loginBody(phone, passwd){
 	let ut_half = safeMd5(phoneMd5 + passwdMd5.toLowerCase() + timestampMd5 + LOGIN_BODY_SALT_MD5);
 	let timestampMd5_half = timestampMd5.slice(0, 18);
 	let ut = timestampMd5.slice(0, 18) + ut_half + timestampMd5.substring(18);
-	console.log("拼接时间戳："+time);
-	console.log("密码小写："+passwdMd5);
-	console.log("时间戳md5："+timestampMd5);
-	console.log("手机号md5："+phoneMd5);
-	console.log("固定值md5："+LOGIN_BODY_SALT_MD5);
-	console.log("拼接："+phoneMd5+passwdMd5+timestampMd5+LOGIN_BODY_SALT_MD5);
-	console.log("拼接后md5："+ut_half);
-	console.log("时间戳md5截取："+timestampMd5_half);
-	console.log("最终："+timestampMd5.slice(0, 18) + ut_half + timestampMd5_half.substring(18));
-	console.log("最终md5："+ut);
 	let hashMap = new Map();// 如果登录不上，有可能是java的hashMap会改变元素位置，js的Map不会改变元素位置
 	/*
 	 * js Map()
@@ -73,18 +84,28 @@ function loginBody(phone, passwd){
 	 * AES加密
 	 * 根据 https://github.com/xmexg/YXYLocheck/blob/main/src/yxyLoginEncrypt/StringUtil.java#L53
 	 */
-	// const cipher = CryptoJS.createCipher('aes256', AES_KEY);
-	// let encrypted = cipher.update(jsonStr, 'utf8', 'hex');
-	// encrypted += cipher.final('hex');
-	// let base64str = base64.encode(encrypted);
-	// let y = getCString(base64str);
-	console.log("请求数组："+jsonStr);
 	let y = getCStr(jsonStr);
-	console.log("y:"+y);
+	// return JSON.stringify({"y":y});
+	return y;
 }
 
 function updateUser(phone, passwd){
 	let body = loginBody(phone, passwd);
+	console.log(body);
+	uni.request({
+	    url: URL_LoginUrl_POST, 
+	    data: {
+			"y": body
+		},
+		method: 'POST',
+	    header: {
+	        ...HEAD,
+			"Content-Type": "application/json;charset=utf-8"
+	    },
+	    success: (res) => {
+	        console.log(res.data);
+	    }
+	});
 }
 
 // 安全的md5,如何是数字类型,则转换为string类型再md5
@@ -103,8 +124,6 @@ function getCStr(str) {// public static String getCStr(String str)
 		const encryptedBytes = encrypt(str, AES_KEY);
 		// const encryptedString = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(encryptedBytes));// bug
 		const encryptedString = CryptoJS.enc.Base64.stringify(encryptedBytes);
-		console.log("原始的base64编码:");
-		console.log(encryptedString);
 		return getCString(encryptedString);
 	} catch (e) {
 		console.error(e);
