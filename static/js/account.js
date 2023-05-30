@@ -20,8 +20,8 @@ var device="android",
 			Uversion="2",
 			Platform="android";
 
-var NetPrefix="https://courseapi.ulearning.cn",
-			URL_LoginUrl_POST=NetPrefix+"/login/v2",// 用户登录
+var NetPrefix="https://apps.ulearning.cn/",
+			URL_LoginUrl_POST=NetPrefix+"user/enter/v2",// 用户登录
 			URL_GetCoursesList_GET=NetPrefix+"/courses/students",// 用户所有课程
 			URL_GetCourseHomeActivity_GET=NetPrefix+"/appHomeActivity/v3",// 用户某个课程的首页活动(/课程id)
 			URL_GetCourseAttendance_GET=NetPrefix+"/newAttendance/getAttendanceForStu",// 某课程中的所有活动(/课程的relationId/用户id)
@@ -99,12 +99,11 @@ function updateUser(phone, passwd){
 		},
 		method: 'POST',
 	    header: {
-	        ...HEAD,
 			"Content-Type": "application/json;charset=utf-8"
 	    },
 	    success: (res) => {
 	        console.log(res.data);
-	    }
+	    },
 	});
 }
 
