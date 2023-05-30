@@ -20,7 +20,7 @@
 			</view>
 		</view>
 	</view>
-	<view class="center" id="empty">
+	<view class="center" id="empty" v-else>
 		<view>
 			<view><image src="@/static/img/error.png"></image></view>
 			<view>未选择用户</view>
