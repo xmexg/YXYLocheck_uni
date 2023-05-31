@@ -99,6 +99,7 @@ function updateUser(phone, passwd){
 		},
 		method: 'POST',
 	    header: {
+			...HEAD,
 			"Content-Type": "application/json;charset=utf-8"
 	    },
 	    success: (res) => {
