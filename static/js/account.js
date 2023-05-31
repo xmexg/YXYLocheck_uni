@@ -20,8 +20,8 @@ var device="android",
 			Uversion="2",
 			Platform="android";
 
-var NetPrefix="https://apps.ulearning.cn/",
-			URL_LoginUrl_POST=NetPrefix+"user/enter/v2",// 用户登录
+var NetPrefix="https://courseapi.ulearning.cn",
+			URL_LoginUrl_POST="https://apps.ulearning.cn/user/enter/v2",// 用户登录
 			URL_GetCoursesList_GET=NetPrefix+"/courses/students",// 用户所有课程
 			URL_GetCourseHomeActivity_GET=NetPrefix+"/appHomeActivity/v3",// 用户某个课程的首页活动(/课程id)
 			URL_GetCourseAttendance_GET=NetPrefix+"/newAttendance/getAttendanceForStu",// 某课程中的所有活动(/课程的relationId/用户id)
@@ -38,8 +38,6 @@ var HEAD={
 	"Accept-Encoding": "identity",
 	"Connection": "close"
 }
-			
-			
 
 // 生成账号登录时的请求体
 // 请在需要使用md5的地方,使用safeMd5
@@ -85,27 +83,43 @@ function loginBody(phone, passwd){
 	 * 根据 https://github.com/xmexg/YXYLocheck/blob/main/src/yxyLoginEncrypt/StringUtil.java#L53
 	 */
 	let y = getCStr(jsonStr);
-	// return JSON.stringify({"y":y});
-	return y;
+	return JSON.stringify({"y":y});
+	// return y;
 }
 
-function updateUser(phone, passwd){
+/**
+ * 用户登录请求
+ * @param {Object} phone 手机号
+ * @param {Object} passwd 密码
+ */
+function UserLogin(phone, passwd){
 	let body = loginBody(phone, passwd);
-	console.log(body);
-	uni.request({
-	    url: URL_LoginUrl_POST, 
-	    data: {
-			"y": body
-		},
-		method: 'POST',
-	    header: {
-			...HEAD,
-			"Content-Type": "application/json;charset=utf-8"
-	    },
-	    success: (res) => {
-	        console.log(res.data);
-	    },
+	return new Promise((resolve, reject) => {
+	    uni.request({
+			url: URL_LoginUrl_POST,
+			data: body,
+			method: 'POST',
+			header: {
+				...HEAD,
+				"Content-Type": "application/json;charset=utf-8"
+			},
+			success: (res) => {
+				console.log(res.data);
+				resolve(res.data);
+			},
+			fail: (err) => {
+				reject(err);
+			}
+		});
 	});
+}
+
+/**
+ * 用户登录的密文
+ * @param {Object} ciphertext
+ */
+function DeLoginResult(ciphertext){
+	
 }
 
 // 安全的md5,如何是数字类型,则转换为string类型再md5

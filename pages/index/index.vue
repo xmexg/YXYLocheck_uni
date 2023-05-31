@@ -30,7 +30,7 @@
 </template>
 
 <script>
-	import {updateUser} from '@/static/js/account.js'
+	import {UserLogin, DeLoginResult} from '@/static/js/account.js'
 	export default {
 		data() {
 			return {
@@ -41,18 +41,24 @@
 		onLoad() {
 		},
 		onShow() {
-			let that = this;
-			let user = getApp().globalData.nowUser;
-			let change = getApp().globalData.changeUser;
-			if(change==1){
-				// that.userInfo = updateUser(user.phone, user.passwd);
-				updateUser(user.phone, user.passwd);
+			if(getApp().globalData.changeUser==1){// 需要更新用户信息
+				this.upPageUserInfo();
+				getApp().globalData.changeUser=0;
 			}
-			console.log(user);
-			console.log("用户改变:"+change);
 		},
 		methods: {
-			
+			async upPageUserInfo(){
+				let user = getApp().globalData.nowUser;
+				let getlogininfo = await UserLogin(user.phone, user.passwd);
+				if(getlogininfo.code != 200){
+					uni.showToast({
+						"title": getlogininfo.message,
+						"icon": 'error'
+					})
+					return;
+				}
+				let deuserinfo = DeLoginResult(getlogininfo.result);
+			}
 		}
 	}
 </script>
