@@ -1,6 +1,6 @@
 <template>
 	<view class="content" v-if="userInfo.length==undefined">
-		<view id="userShow">
+		<view id="userShow" @click="upPageUserData">
 			<view id="showHead"><image :src="userInfo.avatar" mode="aspectFill"></image></view>
 			<view id="showBody">
 				<view id="showBody_1"><view><view class="title">学校:</view><view class="text">{{userInfo.org.orgName}}</view></view><view><view class="title">姓名:</view><view class="text">{{userInfo.name}}</view></view><view><view class="title">电话:</view><view class="text">{{userInfo.tel}}</view></view></view>
@@ -34,7 +34,6 @@
 	export default {
 		data() {
 			return {
-				userInfotest: {},
 				userInfo: {"role":9,"loginname":"loginname","org":{"orgName":"学校名称","orgLogo":"http://tskcloud.qiniudn.com/logo/011086251504175680938/某个图片.jpg","orgID":1234},"sex":"1","avatar":"../../static/img/R-C.jpg","userID":2205242,"token":"一个令牌","studentID":"学号","password":"密码","registerMode":1,"freeUser":0,"name":"姓名","tel":"手机号","timestamp":1685362190071}
 			}
 		},
@@ -42,15 +41,23 @@
 		},
 		onShow() {
 			if(getApp().globalData.changeUser==1){// 需要更新用户信息
-				this.upPageUserInfo();
+				this.upPageUserData();
 				getApp().globalData.changeUser=0;
 			}
 		},
 		methods: {
-			async upPageUserInfo(){
+			async upPageUserData(){
 				let user = getApp().globalData.nowUser;
+				if(user==undefined){
+					uni.showToast({
+						"title": "未选择用户,请先在账户页面选择一个用户",
+						"icon": "error"
+					})
+					return;
+				}
 				let getlogininfo = await UserLogin(user.phone, user.passwd);
-				console.log("登录信息:"+getlogininfo);
+				console.log("登录信息:");
+				console.log(getlogininfo);
 				if(getlogininfo.code != 200){
 					uni.showToast({
 						"title": getlogininfo.message,
@@ -59,10 +66,8 @@
 					return;
 				}
 				let deuserinfo = DeLoginResult(getlogininfo.result);
-				console.log("vue解密结果："+deuserinfo);
-				this.setData({
-					userInfo: deuserinfo
-				});
+				console.log("响应包解密结果："+deuserinfo);
+				this.userInfo = JSON.parse(deuserinfo);
 			}
 		}
 	}

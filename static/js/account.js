@@ -1,9 +1,7 @@
 import './md5.js';
-import CryptoJS from "../../node_modules/.vite/deps/crypto-js.js";
-import Pkcs7 from '../../node_modules/.vite/deps/crypto-js_pad-pkcs7.js';
+import CryptoJS from "./crypto-js/crypto-js.js";
+import Pkcs7 from './crypto-js/crypto-js_pad-pkcs7.js';
 
-
-// export default crypto
 var LOGIN_BODY_SALT = "(**Ulearning__Login##by$$project&&team@@)";//优学院的盐,只是参考,不应该参与计算,浪费性能
 var LOGIN_BODY_SALT_MD5 = "416b0426293a1b2e8f129f23e9ac1eef";//盐的md5,固定值
 var AES_KEY = "ulearning2021331";// 优学院AES的加密密钥
