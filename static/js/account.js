@@ -104,7 +104,7 @@ function UserLogin(phone, passwd){
 				"Content-Type": "application/json;charset=utf-8"
 			},
 			success: (res) => {
-				console.log(res.data);
+				// console.log(res.data);
 				resolve(res.data);
 			},
 			fail: (err) => {
@@ -119,7 +119,8 @@ function UserLogin(phone, passwd){
  * @param {Object} ciphertext
  */
 function DeLoginResult(ciphertext){
-	
+	let rightciphertext = ciphertext.replace(/\n/g, "")
+	return getRStr(rightciphertext);
 }
 
 // 安全的md5,如何是数字类型,则转换为string类型再md5
@@ -172,7 +173,38 @@ function getCString(str){// private static String getCString(String str)
 	return sb;
 }
 
+/**
+ * 下面3个函数完全还原优学院的登陆包解密
+ * https://github.com/xmexg/YXYLocheck/blob/main/src/yxyLoginEncrypt/StringUtil.java
+ */
+function getRStr(str){
+	try{
+		const decryptionByte = CryptoJS.enc.Base64.parse(getRString(str));
+		return decrypt(decryptionByte, AES_KEY);
+	} catch (e) {
+		console.error(e);
+		return "";
+	}
+}
+function getRString(str) {
+    let sb = "";
+    for (let i = 0; i < str.length; i++) {
+        if (i >= 10 || (i + 1) % 2 == 0) {
+            sb+=str.charAt(i);
+        }
+    }
+    return sb;
+}
+function decrypt(str, str2) {
+    const key = CryptoJS.enc.Utf8.parse(str2);
+    const decrypted = CryptoJS.AES.decrypt({ ciphertext: str}, key, {
+        mode: CryptoJS.mode.ECB,
+        padding: CryptoJS.pad.Pkcs7
+    });
+	const plaintext = decrypted.toString(CryptoJS.enc.Utf8);
+    return plaintext;
+}
 export {
-	loginBody,
-	updateUser
+	UserLogin,
+	DeLoginResult
 }

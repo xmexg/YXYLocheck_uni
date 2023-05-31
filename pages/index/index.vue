@@ -50,6 +50,7 @@
 			async upPageUserInfo(){
 				let user = getApp().globalData.nowUser;
 				let getlogininfo = await UserLogin(user.phone, user.passwd);
+				console.log("登录信息:"+getlogininfo);
 				if(getlogininfo.code != 200){
 					uni.showToast({
 						"title": getlogininfo.message,
@@ -58,6 +59,10 @@
 					return;
 				}
 				let deuserinfo = DeLoginResult(getlogininfo.result);
+				console.log("vue解密结果："+deuserinfo);
+				this.setData({
+					userInfo: deuserinfo
+				});
 			}
 		}
 	}
