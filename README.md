@@ -23,7 +23,7 @@
   <summary>浏览器终端提示 CORS 错误</summary>
     <image src="./readmeRes/images/chromeErr_CORS.jpg"><br><br>
     以chrome浏览器为例:<br>
-    1. 打开<a href="chrome://flags/#block-insecure-private-network-requests">chrome实验室</a>并将Block insecure private network requests设置为Disabled<br>
+    1. 打开<a href="chrome://flags/#block-insecure-private-network-requests">chrome实验室(chrome://flags/#block-insecure-private-network-requests)</a>并将Block insecure private network requests设置为Disabled<br>
     <image src="./readmeRes/images/chromeExper_CORS.jpg"><br>
     2. 安装并运行<a href="./readmeRes/extensions">CORS_Unblock</a>扩展,打开<a href="https://webbrowsertools.com/test-cors/">网页</a>测试是否成功<br>
     <image src="./readmeRes/images/chromeExper_CORS_test.jpg"><br>
