@@ -91,7 +91,7 @@ function loginBody(phone, passwd){
  * @param {Object} passwd 密码
  */
 function UserLogin(phone, passwd){
-	let body = loginBody(phone, passwd);
+	let body = loginBody(phone, passwd);// 生成请求体
 	return new Promise((resolve, reject) => {
 	    uni.request({
 			url: URL_LoginUrl_POST,
@@ -119,6 +119,35 @@ function UserLogin(phone, passwd){
 function DeLoginResult(ciphertext){
 	let rightciphertext = ciphertext.replace(/\n/g, "")
 	return getRStr(rightciphertext);
+}
+
+/**
+ * 获取用户课程列表
+ * @param {Object} Authorization 用户token
+ */
+function UserCourseList(Authorization){
+	return new Promise((resolve, reject) => {
+		uni.request({
+			url: URL_GetCoursesList_GET,
+			data: {
+				publishStatus: 1,
+				 pn: 1,
+				 ps: 20,
+				 type: 1
+			},
+			header: {
+				...HEAD,
+				"Authorization": Authorization
+			},
+			success: (res) => {
+				// console.log(res);
+				resolve(res.data);
+			},
+			fail: (err) => {
+				reject(err);
+			}
+		});
+	});
 }
 
 // 安全的md5,如何是数字类型,则转换为string类型再md5
@@ -204,5 +233,6 @@ function decrypt(str, str2) {
 }
 export {
 	UserLogin,
-	DeLoginResult
+	DeLoginResult,
+	UserCourseList
 }
