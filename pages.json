@@ -20,6 +20,14 @@
 				"navigationBarBackgroundColor": "#4a90e2",
 				"navigationBarTextStyle": "white"
 			}
+		},
+		{
+			"path": "pages/index/map",
+			"style": {
+				"navigationBarTitleText": "选择位置",
+				"navigationBarTextStyle": "white",
+				"navigationBarBackgroundColor": "#4a90e2"
+			}
 		}
     ],
 	"globalStyle": {

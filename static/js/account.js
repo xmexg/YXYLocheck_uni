@@ -23,7 +23,7 @@ var NetPrefix="https://courseapi.ulearning.cn",
 			URL_GetCoursesList_GET=NetPrefix+"/courses/students",// 用户所有课程
 			URL_GetCourseHomeActivity_GET=NetPrefix+"/appHomeActivity/v3",// 用户某个课程的首页活动(/课程id)
 			URL_GetCourseAttendance_GET=NetPrefix+"/newAttendance/getAttendanceForStu",// 某课程中的所有活动(/课程的relationId/用户id)
-			URL_LocSign_POST=NetPrefix+"/newAttendance/signByStu";//完成定位签到
+			URL_LocSign_POST="https://apps.ulearning.cn/newAttendance/signByStu";//完成定位签到
 			
 var HEAD={
 	"Accept-Language": "zh-cn",
@@ -171,6 +171,51 @@ function AppHomeActivityList(id, Authorization){
 	});
 }
 
+
+/**
+ * 完成位置签到
+ * @param {Object} relationId
+ * @param {Object} classId
+ * @param {Object} userID
+ * @param {Object} lonlat
+ * @param {Object} Authorization
+ */
+function LocSign(relationId, classId, userID, lonlat, Authorization){
+	let body = {
+		"attendanceID": relationId,
+		"classID": classId,
+		"userID": userID,
+		"location": lonlat,
+		"address": "",
+		"enterWay": 1,
+		"attendanceCode": ""
+	};
+	return new Promise((resolve, reject) => {
+		uni.request({
+			url: URL_LocSign_POST,
+			data: body,
+			method: 'POST',
+			header: {
+				...HEAD,
+				'Authorization': Authorization,
+				'Content-Type': 'application/json;charset=utf-8',
+				'Origin': 'https://umobile.ulearning.cn',
+				'X-Requested-With': 'cn.ulearning.yxy',
+				'Sec-Fetch-Site': 'same-site',
+				'Sec-Fetch-Mode': 'cors',
+				'Sec-Fetch-Dest': 'empty',
+				'Referer': 'https://umobile.ulearning.cn/'
+			},
+			success: (res) => {
+				resolve(res.data);
+			},
+			fail: (err) => {
+				reject(err);
+			}
+		});
+	});
+}
+
 // 安全的md5,如何是数字类型,则转换为string类型再md5
 function safeMd5(input){
 	let inputStr = (typeof input === 'number') ? String(input) : input;
@@ -256,5 +301,6 @@ export {
 	UserLogin,
 	DeLoginResult,
 	UserCourseList,
-	AppHomeActivityList
+	AppHomeActivityList,
+	LocSign
 }

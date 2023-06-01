@@ -1,5 +1,5 @@
 <template>
-	<view class="content" v-if="userInfo.length==undefined">
+	<view class="content" v-if="Object.keys(userInfo).length > 0">
 		<view id="userShow" @click="upPageUserData">
 			<view id="showHead"><image :src="userInfo.avatar" mode="aspectFit"></image></view>
 			<view id="showBody">
@@ -19,33 +19,38 @@
 				</uni-grid> -->
 			</view>
 		</view>
+		<view id="lonlat">
+			<view>设置全局位置坐标<a href="https://lbs.amap.com/tools/picker">获取坐标</a></view>
+			<view>因uni的坐标拾取器默认有范围限制，无法使用</view>
+			<input placeholder="请输入在高德地图拾取的坐标" v-model="lonlat"/>
+		</view>
 		<view id="courseListShow">
-			<view class="courseBlockShow" v-for="(item, index) in courseList">
+			<view class="courseBlockShow" v-for="(Class, index) in courseList">
 				<!-- <view class="courseBlockShow_index">{{index}}</view> -->
 				<swiper class="courseBlockShowInfo_swiper">
 					<swiper-item class="courseBlockShowInfo">
-						<view class="courseBlockShow_img"><image class="courseBlockShow_img_img" :src="item.cover" mode="aspectFill"></image></view>
+						<view class="courseBlockShow_img"><image class="courseBlockShow_img_img" :src="Class.cover" mode="aspectFill"></image></view>
 						<view class="courseBlockShow_text">
-							<view class="courseBlockShow_name">{{item.name}}</view>
-							<view class="courseBlockShow_name">{{item.creatorOrgName}} {{item.className}}</view>
-							<view class="courseBlockShow_name">{{item.teacherName}}</view>
+							<view class="courseBlockShow_name">{{Class.name}}</view>
+							<view class="courseBlockShow_name">{{Class.creatorOrgName}} {{Class.className}}</view>
+							<view class="courseBlockShow_name">{{Class.teacherName}}</view>
 						</view>
 					</swiper-item>
 					<swiper-item>
 						<view class="courseBlockShow_swiper_index">{{index+1}}</view>
-						<view>{{item}}</view>
+						<view>{{Class}}</view>
 					</swiper-item>
 				</swiper>
 				<view class="courseActivityShow">
 					<!-- 注意for与if处于同一节点，v-if 的优先级比 v-for 更高，v-if 将没有权限访问 v-for 里的变量 -->
-					<view v-for="activities in appHomeActivity">
-						<view v-if="activities.id == item.id">
+					<view v-if="appHomeActivity.length != 0" v-for="activities in appHomeActivity">
+						<view v-if="activities.id == Class.id">
 							<swiper class="activities_swiper">
 								<swiper-item class="activities_show">
 									<view class="ActivityType">
 										<view>courseActivity:(尚不支持)</view>
 										<view v-if="activities.info.courseActivityCount != 0">
-											<view calss="activitydetaillist" v-for="(activitydetail, indexdetail) in activities.info.courseActivityDTOList"></view>
+											<view class="activitydetaillist" v-for="(activitydetail, indexdetail) in activities.info.courseActivityDTOList">{{activitydetail}}</view>
 										</view>
 										<view v-else>
 											没有该类型活动
@@ -54,7 +59,7 @@
 									<view class="ActivityType">
 										<view>miniCourseActivity:(尚不支持)</view>
 										<view v-if="activities.info.miniCourseActivityCount != 0">
-											<view calss="activitydetaillist" v-for="(activitydetail, indexdetail) in activities.info.courseActivityDTOList"></view>
+											<view class="activitydetaillist" v-for="(activitydetail, indexdetail) in activities.info.miniCourseActivityDTOList">{{activitydetail}}</view>
 										</view>
 										<view v-else>
 											没有该类型活动
@@ -63,7 +68,9 @@
 									<view class="ActivityType">
 										<view>otherActivity:(仅支持位置签到)</view>
 										<view v-if="activities.info.otherActivityCount != 0">
-											<view calss="activitydetaillist" v-for="(activitydetail, indexdetail) in activities.info.courseActivityDTOList"></view>
+											<view class="activitydetaillist" v-for="(activitydetail, indexdetail) in activities.info.otherActivityDTOList" @click="startSign(activitydetail.relationId, Class.classId, userInfo.userID)">
+												{{activitydetail.title}}
+											</view>
 										</view>
 										<view v-else>
 											没有该类型活动
@@ -77,6 +84,7 @@
 							<view>获取课程活动列表失败</view>
 						</view>
 					</view>
+					<view v-else><view>没有正在进行的活动</view></view>
 				</view>
 			</view>
 		</view>
@@ -91,13 +99,17 @@
 </template>
 
 <script>
-	import {UserLogin, DeLoginResult, UserCourseList, AppHomeActivityList} from '@/static/js/account.js'
+	import {UserLogin, DeLoginResult, UserCourseList, AppHomeActivityList, LocSign} from '@/static/js/account.js'
 	export default {
 		data() {
 			return {
-				userInfo: {"role":9,"loginname":"loginname","org":{"orgName":"学校名称","orgLogo":"http://tskcloud.qiniudn.com/logo/011086251504175680938/某个图片.jpg","orgID":1234},"sex":"1","avatar":"../../static/img/R-C.jpg","userID":2205242,"token":"一个令牌","studentID":"学号","password":"密码","registerMode":1,"freeUser":0,"name":"姓名","tel":"手机号","timestamp":1685362190071},
-				courseList: [{"id":119651,"name":"2022-2023-2学期形势与政策（山东高校专版）","cover":"https://obscloud.ulearning.cn/resources/android/mobile/8124418_20230217141542.jpg","courseCode":"92305661","type":1,"classId":626053,"className":"班级名字","status":1,"teacherName":"老师名字","learnProgress":0,"totalDuration":0,"publishStatus":1,"creatorOrgId":2741,"creatorOrgName":"学校名字","classUserId":26526063},{"id":119658,"name":"2022-2023-2学期形势与政策（山东高校专版）","cover":"https://obscloud.ulearning.cn/resources/android/mobile/8124418_20230217141542.jpg","courseCode":"92305661","type":1,"classId":626053,"className":"班级名字","status":1,"teacherName":"老师名字","learnProgress":0,"totalDuration":0,"publishStatus":1,"creatorOrgId":2741,"creatorOrgName":"学校名字","classUserId":26526063}],
-				appHomeActivity: [{"id":119651,"info":{"allCount":1,"courseActivityCount":0,"courseActivityDTOList":[],"miniCourseActivityCount":0,"miniCourseActivityDTOList":[],"otherActivityCount":1,"otherActivityDTOList":[{"relationType":1,"relationId":562324,"title":"2023-04-04 15:55  点名","startDate":1680594949000,"status":2,"publishStatus":0,"scoreType":0,"classes":["班级名"],"personStatus":0}]}}]
+				userInfotest: {"role":9,"loginname":"loginname","org":{"orgName":"学校名称","orgLogo":"http://tskcloud.qiniudn.com/logo/011086251504175680938/某个图片.jpg","orgID":1234},"sex":"1","avatar":"../../static/img/R-C.jpg","userID":2205242,"token":"一个令牌","studentID":"学号","password":"密码","registerMode":1,"freeUser":0,"name":"姓名","tel":"手机号","timestamp":1685362190071},
+				courseListtesy: [{"id":119651,"name":"2022-2023-2学期形势与政策（山东高校专版）","cover":"https://obscloud.ulearning.cn/resources/android/mobile/8124418_20230217141542.jpg","courseCode":"92305661","type":1,"classId":626053,"className":"班级名字","status":1,"teacherName":"老师名字","learnProgress":0,"totalDuration":0,"publishStatus":1,"creatorOrgId":2741,"creatorOrgName":"学校名字","classUserId":26526063},{"id":119658,"name":"2022-2023-2学期形势与政策（山东高校专版）","cover":"https://obscloud.ulearning.cn/resources/android/mobile/8124418_20230217141542.jpg","courseCode":"92305661","type":1,"classId":626053,"className":"班级名字","status":1,"teacherName":"老师名字","learnProgress":0,"totalDuration":0,"publishStatus":1,"creatorOrgId":2741,"creatorOrgName":"学校名字","classUserId":26526063}],
+				appHomeActivitytest: [{"id":119651,"info":{"allCount":1,"courseActivityCount":0,"courseActivityDTOList":[],"miniCourseActivityCount":0,"miniCourseActivityDTOList":[],"otherActivityCount":1,"otherActivityDTOList":[{"relationType":1,"relationId":562324,"title":"2023-04-04 15:55  点名","startDate":1680594949000,"status":2,"publishStatus":0,"scoreType":0,"classes":["班级名"],"personStatus":0}]}}],
+				lonlat: "",
+				userInfo: {},
+				courseList: [],
+				appHomeActivity: []
 			}
 		},
 		onLoad() {
@@ -150,7 +162,7 @@
 				}
 				this.courseList = getUserCourseList.courseList;
 				// 更新课程首页活动
-				// this.upAppHomeActivityList();
+				this.upAppHomeActivityList();
 			},
 			async upAppHomeActivityList(Authorization){// 获取课程首页活动，appHomeActivity
 				if((Authorization == undefined) || (typeof Authorization !== 'string')){
@@ -164,6 +176,34 @@
 					newappHomeActivityJson.push({"id":v.id,"info":appHomeActivity});
 				})
 				this.appHomeActivity = newappHomeActivityJson;
+			},
+			async startSign(relationId, classId, userID, Authorization){
+				if((Authorization == undefined) || (typeof Authorization !== 'string')){
+					Authorization = this.userInfo.token;
+				}
+				console.log("正在签到:");
+				console.log("坐标:"+this.lonlat);
+				let signres = await LocSign(relationId, classId, userID, this.lonlat, Authorization);
+				uni.showToast({
+					"title": signres.message,
+					"icon": 'none'
+				});
+				// 有问题
+				// uni.navigateTo({
+				// 	url: '/pages/index/map',
+				// 	events: {
+				// 		Sign: async function(lonlat) {
+				// 			console.log("开始位置签到:");
+				// 			console.log(lonlat);
+				//			let rightlat = lonlat.longitude+','+lonlat.latitude;
+				// 			let signres = await LocSign(relationId, classId, userID, rightlat, Authorization);
+				// 			uni.showToast({
+				// 				"title": signres.message,
+				// 				"icon": 'none'
+				// 			});
+				// 		}
+				// 	}
+				// });
 			}
 		}
 	}
@@ -188,6 +228,13 @@
 		justify-content: center;
 		width: 100%;
 		height: 100%;
+	}
+	#lonlat{
+		width: 90%;
+		padding: 5rpx;
+		margin: 5rpx 0;
+		background: #edf2ff;
+		border-radius: 5rpx;
 	}
 	
 	#userShow{
@@ -341,6 +388,12 @@
 		color: #135552;
 	}
 	.activitydetaillist{
-		
+		background: #d6e2ff;
+		border-radius: 5rpx;
+		width: 90%;
+		position: relative;
+		left: 2%;
+		margin: 5rpx 0;
+		padding: 5rpx;
 	}
 </style>
