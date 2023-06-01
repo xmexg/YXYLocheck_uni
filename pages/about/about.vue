@@ -21,8 +21,16 @@
 						"co": "https://github.com/xmexg/YXYLocheck_uni"
 					},
 					{
+						"ti": "工作原理",
+						"co": "https://github.com/xmexg/YXYLocheck"
+					},
+					{
 						"ti": "",
 						"co": "程序未实际验证，无法保证优学院成功签到"
+					},
+					{
+						"ti": "CORS",
+						"co": "浏览器处于安全考虑，如果在浏览器运行请先解锁CORS限制，方法见项目地址"
 					}
 				]
 			}

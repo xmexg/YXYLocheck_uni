@@ -94,6 +94,7 @@
 			<view><image src="@/static/img/error.png"></image></view>
 			<view>未选择用户</view>
 			<view>请先选中用户</view>
+			<view>如果你在浏览器运行，请务必浏览<a href="https://github.com/xmexg/YXYLocheck_uni#readme">如何解锁CORS限制</a></view>
 		</view>
 	</view>
 </template>
