@@ -156,7 +156,7 @@ function UserCourseList(Authorization){
 function AppHomeActivityList(id, Authorization){
 	return new Promise((resolve, reject) => {
 		uni.request({
-			url: "https://courseapi.ulearning.cn/appHomeActivity/v3/119651",
+			url: URL_GetCourseHomeActivity_GET+'/'+id,
 			header: {
 				...HEAD,
 				"Authorization": Authorization

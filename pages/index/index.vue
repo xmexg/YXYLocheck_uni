@@ -37,7 +37,46 @@
 					</swiper-item>
 				</swiper>
 				<view class="courseActivityShow">
-					活动
+					<!-- 注意for与if处于同一节点，v-if 的优先级比 v-for 更高，v-if 将没有权限访问 v-for 里的变量 -->
+					<view v-for="activities in appHomeActivity">
+						<view v-if="activities.id == item.id">
+							<swiper class="activities_swiper">
+								<swiper-item class="activities_show">
+									<view class="ActivityType">
+										<view>courseActivity:(尚不支持)</view>
+										<view v-if="activities.info.courseActivityCount != 0">
+											<view calss="activitydetaillist" v-for="(activitydetail, indexdetail) in activities.info.courseActivityDTOList"></view>
+										</view>
+										<view v-else>
+											没有该类型活动
+										</view>
+									</view>
+									<view class="ActivityType">
+										<view>miniCourseActivity:(尚不支持)</view>
+										<view v-if="activities.info.miniCourseActivityCount != 0">
+											<view calss="activitydetaillist" v-for="(activitydetail, indexdetail) in activities.info.courseActivityDTOList"></view>
+										</view>
+										<view v-else>
+											没有该类型活动
+										</view>
+									</view>
+									<view class="ActivityType">
+										<view>otherActivity:(仅支持位置签到)</view>
+										<view v-if="activities.info.otherActivityCount != 0">
+											<view calss="activitydetaillist" v-for="(activitydetail, indexdetail) in activities.info.courseActivityDTOList"></view>
+										</view>
+										<view v-else>
+											没有该类型活动
+										</view>
+									</view>
+								</swiper-item>
+								<swiper-item>{{activities}}</swiper-item>
+							</swiper>
+						</view>
+						<view v-else>
+							<view>获取课程活动列表失败</view>
+						</view>
+					</view>
 				</view>
 			</view>
 		</view>
@@ -110,18 +149,21 @@
 					return;
 				}
 				this.courseList = getUserCourseList.courseList;
-				this.upAppHomeActivityList();
+				// 更新课程首页活动
+				// this.upAppHomeActivityList();
 			},
 			async upAppHomeActivityList(Authorization){// 获取课程首页活动，appHomeActivity
 				if((Authorization == undefined) || (typeof Authorization !== 'string')){
 					Authorization = this.userInfo.token;
 				}
+				let newappHomeActivityJson = [];
 				this.courseList.forEach(async(v, i) => {
 					console.log("获取课程首页信息");
-					let id = String(v.id);
-					let appHomeActivity = await AppHomeActivityList(id, Authorization);
+					let appHomeActivity = await AppHomeActivityList(String(v.id), Authorization);
 					console.log(appHomeActivity);
+					newappHomeActivityJson.push({"id":v.id,"info":appHomeActivity});
 				})
+				this.appHomeActivity = newappHomeActivityJson;
 			}
 		}
 	}
@@ -272,5 +314,33 @@
 		color: #b1d5c8;
 		z-index: -1;
 		text-align: center;
+	}
+	.activities_swiper{
+		overflow-y: scroll;
+		height: 300rpx;
+	}
+	.activities_show{
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+	}
+	.ActivityType{
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+		margin: 5rpx 0;
+		border-left: 3rpx solid #26a8a2;
+	}
+	.ActivityType > view:first-child{
+		color: #8559ff;
+	}
+	.ActivityType > view:nth-child(2){
+		color: #26a8a2;
+	}
+	.ActivityType > view:last-child{
+		color: #135552;
+	}
+	.activitydetaillist{
+		
 	}
 </style>
