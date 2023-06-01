@@ -1,7 +1,7 @@
 <template>
 	<view class="content" v-if="userInfo.length==undefined">
 		<view id="userShow" @click="upPageUserData">
-			<view id="showHead"><image :src="userInfo.avatar" mode="aspectFill"></image></view>
+			<view id="showHead"><image :src="userInfo.avatar" mode="aspectFit"></image></view>
 			<view id="showBody">
 				<view id="showBody_1"><view><view class="title">学校:</view><view class="text">{{userInfo.org.orgName}}</view></view><view><view class="title">姓名:</view><view class="text">{{userInfo.name}}</view></view><view><view class="title">电话:</view><view class="text">{{userInfo.tel}}</view></view></view>
 				<view id="showBody_3"><view><view class="title">学号:</view><view class="text">{{userInfo.studentID}}</view></view><view><view class="title">id:</view><view class="text">{{userInfo.userID}}</view></view><view><view class="title">时间戳:</view><view class="text">{{userInfo.timestamp}}</view></view></view>
@@ -20,8 +20,25 @@
 			</view>
 		</view>
 		<view id="courseListShow">
-			<view class="courseBlockShow">
-				<view v-for="(item, index) in courseList">{{index}}:{{item}}</view>
+			<view class="courseBlockShow" v-for="(item, index) in courseList">
+				<!-- <view class="courseBlockShow_index">{{index}}</view> -->
+				<swiper class="courseBlockShowInfo_swiper">
+					<swiper-item class="courseBlockShowInfo">
+						<view class="courseBlockShow_img"><image class="courseBlockShow_img_img" :src="item.cover" mode="aspectFill"></image></view>
+						<view class="courseBlockShow_text">
+							<view class="courseBlockShow_name">{{item.name}}</view>
+							<view class="courseBlockShow_name">{{item.creatorOrgName}} {{item.className}}</view>
+							<view class="courseBlockShow_name">{{item.teacherName}}</view>
+						</view>
+					</swiper-item>
+					<swiper-item>
+						<view class="courseBlockShow_swiper_index">{{index+1}}</view>
+						<view>{{item}}</view>
+					</swiper-item>
+				</swiper>
+				<view class="courseActivityShow">
+					活动
+				</view>
 			</view>
 		</view>
 	</view>
@@ -35,20 +52,20 @@
 </template>
 
 <script>
-	import {UserLogin, DeLoginResult, UserCourseList} from '@/static/js/account.js'
+	import {UserLogin, DeLoginResult, UserCourseList, AppHomeActivityList} from '@/static/js/account.js'
 	export default {
 		data() {
 			return {
 				userInfo: {"role":9,"loginname":"loginname","org":{"orgName":"学校名称","orgLogo":"http://tskcloud.qiniudn.com/logo/011086251504175680938/某个图片.jpg","orgID":1234},"sex":"1","avatar":"../../static/img/R-C.jpg","userID":2205242,"token":"一个令牌","studentID":"学号","password":"密码","registerMode":1,"freeUser":0,"name":"姓名","tel":"手机号","timestamp":1685362190071},
-				courseList: [{"id":119651,"name":"2022-2023-2学期形势与政策（山东高校专版）","cover":"https://obscloud.ulearning.cn/resources/android/mobile/8124418_20230217141542.jpg","courseCode":"92305661","type":1,"classId":626053,"className":"班级名字","status":1,"teacherName":"老师名字","learnProgress":0,"totalDuration":0,"publishStatus":1,"creatorOrgId":2741,"creatorOrgName":"学校名字","classUserId":26526063},{"id":119658,"name":"2022-2023-2学期形势与政策（山东高校专版）","cover":"https://obscloud.ulearning.cn/resources/android/mobile/8124418_20230217141542.jpg","courseCode":"92305661","type":1,"classId":626053,"className":"班级名字","status":1,"teacherName":"老师名字","learnProgress":0,"totalDuration":0,"publishStatus":1,"creatorOrgId":2741,"creatorOrgName":"学校名字","classUserId":26526063}]
+				courseList: [{"id":119651,"name":"2022-2023-2学期形势与政策（山东高校专版）","cover":"https://obscloud.ulearning.cn/resources/android/mobile/8124418_20230217141542.jpg","courseCode":"92305661","type":1,"classId":626053,"className":"班级名字","status":1,"teacherName":"老师名字","learnProgress":0,"totalDuration":0,"publishStatus":1,"creatorOrgId":2741,"creatorOrgName":"学校名字","classUserId":26526063},{"id":119658,"name":"2022-2023-2学期形势与政策（山东高校专版）","cover":"https://obscloud.ulearning.cn/resources/android/mobile/8124418_20230217141542.jpg","courseCode":"92305661","type":1,"classId":626053,"className":"班级名字","status":1,"teacherName":"老师名字","learnProgress":0,"totalDuration":0,"publishStatus":1,"creatorOrgId":2741,"creatorOrgName":"学校名字","classUserId":26526063}],
+				appHomeActivity: [{"id":119651,"info":{"allCount":1,"courseActivityCount":0,"courseActivityDTOList":[],"miniCourseActivityCount":0,"miniCourseActivityDTOList":[],"otherActivityCount":1,"otherActivityDTOList":[{"relationType":1,"relationId":562324,"title":"2023-04-04 15:55  点名","startDate":1680594949000,"status":2,"publishStatus":0,"scoreType":0,"classes":["班级名"],"personStatus":0}]}}]
 			}
 		},
 		onLoad() {
 		},
 		onShow() {
-			this.upPageUserCourseList("2A79E39CB41FF700241B13AEDAC95765");// 获取用户课程信息，稍后删掉
 			if(getApp().globalData.changeUser==1){// 需要更新用户信息
-				// this.upPageUserData();
+				this.upPageUserData();
 				getApp().globalData.changeUser=0;
 			}
 		},
@@ -92,11 +109,20 @@
 					})
 					return;
 				}
-				let up_course = JSON.parse(getUserCourseList.courseList);
-				console.log("解析后的json：");
-				console.log(up_course);
-				this.courseList = up_course;
-			}			
+				this.courseList = getUserCourseList.courseList;
+				this.upAppHomeActivityList();
+			},
+			async upAppHomeActivityList(Authorization){// 获取课程首页活动，appHomeActivity
+				if((Authorization == undefined) || (typeof Authorization !== 'string')){
+					Authorization = this.userInfo.token;
+				}
+				this.courseList.forEach(async(v, i) => {
+					console.log("获取课程首页信息");
+					let id = String(v.id);
+					let appHomeActivity = await AppHomeActivityList(id, Authorization);
+					console.log(appHomeActivity);
+				})
+			}
 		}
 	}
 </script>
@@ -129,11 +155,10 @@
 		flex-direction: column;
 		flex-wrap: wrap;
 		padding: 10rpx 0;
-		margin: 10rpx 0;
-		width: 90%;
-		background: #edf2ff;
+		margin-bottom: 10rpx;
+		width: 100%;
+		background: #ced4da;
 		position: relative;
-		border-radius: 10rpx;
 		overflow: hidden;
 	}
 	#showHead{
@@ -141,7 +166,7 @@
 		height: 100%;
 		width: 20%;
 		min-width: 150px;
-		left: 0;
+		left: 5%;
 		overflow: hidden;
 		display: flex;
 		justify-content: flex-start;
@@ -151,6 +176,7 @@
 		height: 100%;
 		display: flex;
 		justify-content: flex-start;
+		border-radius: 5rpx;
 	}
 	#showBody{
 		display: flex;
@@ -203,14 +229,48 @@
 		overflow: hidden;
 	}
 	.courseBlockShow{
+		/* 奇怪的bug，无法使用flex居中 */
 		width: 90%;
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-content: center;
-		background: #91a7ff;
-		padding: 10rpx;
 		position: relative;
+		border: 2rpx solid #91a7ff;
 		border-radius: 10rpx;
+		overflow: hidden;
+		margin: 1% 0;
+		left: 3%;
+		padding: 1%;
+	}
+	.courseBlockShowInfo_swiper{
+		border-bottom: 1rpx solid #91a7ff;
+		
+	}
+	.courseBlockShowInfo{
+		width: 100%;
+		height: 100rpx;
+		border-bottom: 1rpx solid #91a7ff;
+		position: relative;
+		display: flex;
+		flex-direction: row;
+	}
+	.courseBlockShow_img{
+		width: 30%;
+		overflow: hidden;
+		border-radius: 5rpx;
+		margin: 0 5rpx 5rpx 0;
+		position: relative;
+	}
+	.courseBlockShow_img_img{
+		width: 100%;
+	}
+	.courseBlockShow_text{
+		width: 70%;
+	}
+	.courseBlockShow_swiper_index{
+		position: absolute;
+		left: 30%;
+		width: 40%;
+		font-size: 3rem;
+		color: #b1d5c8;
+		z-index: -1;
+		text-align: center;
 	}
 </style>

@@ -102,7 +102,6 @@ function UserLogin(phone, passwd){
 				"Content-Type": "application/json;charset=utf-8"
 			},
 			success: (res) => {
-				// console.log(res.data);
 				resolve(res.data);
 			},
 			fail: (err) => {
@@ -131,16 +130,38 @@ function UserCourseList(Authorization){
 			url: URL_GetCoursesList_GET,
 			data: {
 				publishStatus: 1,
-				 pn: 1,
-				 ps: 20,
-				 type: 1
+				pn: 1,
+				ps: 20,
+				type: 1
 			},
 			header: {
 				...HEAD,
 				"Authorization": Authorization
 			},
 			success: (res) => {
-				// console.log(res);
+				resolve(res.data);
+			},
+			fail: (err) => {
+				reject(err);
+			}
+		});
+	});
+}
+
+/**
+ * 获取课程首页活动
+ * @param {Object} id 课程id
+ * @param {Object} Authorization 用户token
+ */
+function AppHomeActivityList(id, Authorization){
+	return new Promise((resolve, reject) => {
+		uni.request({
+			url: "https://courseapi.ulearning.cn/appHomeActivity/v3/119651",
+			header: {
+				...HEAD,
+				"Authorization": Authorization
+			},
+			success: (res) => {
 				resolve(res.data);
 			},
 			fail: (err) => {
@@ -234,5 +255,6 @@ function decrypt(str, str2) {
 export {
 	UserLogin,
 	DeLoginResult,
-	UserCourseList
+	UserCourseList,
+	AppHomeActivityList
 }
