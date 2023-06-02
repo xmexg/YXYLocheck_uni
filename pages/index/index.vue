@@ -89,7 +89,7 @@
 			</view>
 		</view>
 	</view>
-	<view class="center" id="empty" v-else>
+	<view class="center" id="empty" v-else @click="upPageUserData()">
 		<view>
 			<view><image src="@/static/img/error.png"></image></view>
 			<view>未选择用户</view>
@@ -112,6 +112,13 @@
 				courseList: [],
 				appHomeActivity: []
 			}
+		},
+		onPullDownRefresh() {
+			console.log('refresh');
+			this.upPageUserData();
+			setTimeout(function () {
+				uni.stopPullDownRefresh();
+			}, 1000);
 		},
 		onLoad() {
 		},
